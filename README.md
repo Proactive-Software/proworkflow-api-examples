@@ -26,6 +26,3 @@ All examples support both authentication methods:
 - [Swagger UI](https://api.proworkflow.com/api/v4/swagger/index.html)
 - [Rate limits](https://api.proworkflow.com/api/v4/swagger/index.html): 500 requests per 30 seconds per API key
 
-## Contributing
-
-PRs welcome. Add examples under `{language}/{example-name}/` with a `README.md` covering setup and usage.
