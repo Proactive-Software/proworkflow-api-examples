@@ -9,6 +9,7 @@ Code examples for the [ProWorkflow API v4](https://api.proworkflow.com/api/v4/sw
 | Example | Description |
 |---------|-------------|
 | [data-export](python/data-export/) | Download all account data to JSON files |
+| [csv-import](python/csv-import/) | Import contacts from a CSV file |
 
 ## Real-world application
 

@@ -1,0 +1,4 @@
+firstname,lastname,type,email,workphone,mobilephone,title,companyid,address1,address2,city,state,zipcode,country,allowlogin
+Jane,Smith,client,jane@example.com,+1 212 555 0100,+1 212 555 0101,Marketing Manager,42,123 Main St,,New York,NY,10001,USA,false
+Bob,Jones,staff,bob@example.com,+1 415 555 0200,,Senior Developer,,456 Market St,Suite 200,San Francisco,CA,94105,USA,true
+Alice,Lee,contractor,alice@example.com,,,Freelance Designer,,,,,,,false
