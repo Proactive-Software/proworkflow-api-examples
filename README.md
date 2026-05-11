@@ -4,6 +4,12 @@ Code examples for the [ProWorkflow API v4](https://api.proworkflow.com/api/v4/sw
 
 ## Examples
 
+### JavaScript
+
+| Example | Description |
+|---------|-------------|
+| [dashboard](js/dashboard/) | Active projects and upcoming tasks — open `index.html` in a browser, no build step |
+
 ### Python
 
 | Example | Description |

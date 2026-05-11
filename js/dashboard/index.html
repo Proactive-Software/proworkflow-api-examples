@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ProWorkflow Dashboard</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      header {
+        margin-bottom: 2rem;
+      }
+      header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      header p {
+        font-size: 0.875rem;
+        color: #666;
+        margin-top: 0.25rem;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .stat-card .label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #888;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+      }
+      .stat-card.projects .value {
+        color: #2563eb;
+      }
+      .stat-card.week .value {
+        color: #d97706;
+      }
+      .stat-card.overdue .value {
+        color: #dc2626;
+      }
+
+      .table-wrap {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .table-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      .table-header h2 {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      th {
+        text-align: left;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #888;
+        background: #fafafa;
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      td {
+        padding: 0.875rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr.overdue td {
+        background: #fff5f5;
+      }
+      tr.due-today td {
+        background: #fffbeb;
+      }
+
+      .task-name {
+        font-weight: 500;
+      }
+      .project-name {
+        color: #555;
+      }
+      .due-date {
+        white-space: nowrap;
+      }
+
+      tr.overdue .due-date {
+        color: #dc2626;
+        font-weight: 600;
+      }
+      tr.due-today .due-date {
+        color: #d97706;
+        font-weight: 600;
+      }
+
+      .priority-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+      }
+
+      .priority-1 {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .priority-2 {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .priority-3 {
+        background: #fef9c3;
+        color: #854d0e;
+      }
+      .priority-4 {
+        background: #f0fdf4;
+        color: #166534;
+      }
+      .priority-5 {
+        background: #f8fafc;
+        color: #64748b;
+      }
+
+      .empty,
+      .error,
+      .loading {
+        padding: 3rem;
+        text-align: center;
+        color: #888;
+        font-size: 0.9rem;
+      }
+
+      .error {
+        color: #dc2626;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>ProWorkflow Dashboard</h1>
+      <p id="subtitle">Loading&hellip;</p>
+    </header>
+
+    <div class="stats">
+      <div class="stat-card projects">
+        <div class="label">Active Projects</div>
+        <div class="value" id="stat-projects">&mdash;</div>
+      </div>
+      <div class="stat-card week">
+        <div class="label">Due This Week</div>
+        <div class="value" id="stat-week">&mdash;</div>
+      </div>
+      <div class="stat-card overdue">
+        <div class="label">Overdue Tasks</div>
+        <div class="value" id="stat-overdue">&mdash;</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <h2>Tasks due in the next 14 days</h2>
+      </div>
+      <div id="table-container">
+        <div class="loading">Loading tasks&hellip;</div>
+      </div>
+    </div>
+
+    <script>
+      // ─── CONFIG ──────────────────────────────────────────────────────────────────
+      // Set your API key and base URL before opening this file in a browser.
+      const CONFIG = {
+        baseUrl: "https://api.proworkflow.com/api/v4",
+        apiKey: "YOUR-API-KEY-HERE",
+      };
+      // ─────────────────────────────────────────────────────────────────────────────
+
+      const PRIORITY_LABELS = {
+        1: "Very High",
+        2: "High",
+        3: "Medium",
+        4: "Low",
+        5: "Very Low",
+      };
+
+      function today() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function daysFromNow(n) {
+        const d = new Date();
+        d.setDate(d.getDate() + n);
+        return d.toISOString().slice(0, 10);
+      }
+
+      function formatDate(iso) {
+        if (!iso) return "—";
+        const [y, m, d] = iso.slice(0, 10).split("-");
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        return `${parseInt(d, 10)} ${months[parseInt(m, 10) - 1]} ${y}`;
+      }
+
+      async function apiFetch(path) {
+        const res = await fetch(`${CONFIG.baseUrl}${path}`, {
+          headers: { apikey: CONFIG.apiKey },
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+        return res.json();
+      }
+
+      async function loadDashboard() {
+        const todayStr = today();
+        const twoWeeks = daysFromNow(14);
+        const oneWeek = daysFromNow(7);
+
+        document.getElementById("subtitle").textContent =
+          `As of ${formatDate(todayStr)}`;
+
+        // Fetch active projects and upcoming tasks in parallel
+        const [projectsRes, tasksRes] = await Promise.all([
+          apiFetch(
+            "/projects?status=active&fields=id,title&pagesize=500&pagenumber=1",
+          ),
+          apiFetch(
+            `/projectitems?status=active&duedateto=${twoWeeks}` +
+              `&sortby=duedate&sortorder=asc` +
+              `&fields=id,name,duedate,priority,projectid,projecttitle` +
+              `&pagesize=100&pagenumber=1`,
+          ),
+        ]);
+
+        // Build project lookup map: id → name
+        // (projecttitle is returned directly on each task, but this map acts as a fallback)
+        const projectMap = {};
+        for (const p of projectsRes.data || []) {
+          projectMap[p.id] = p.title;
+        }
+
+        const tasks = tasksRes.data || [];
+
+        // Compute stat counts
+        const overdueCount = tasks.filter(
+          (t) => t.duedate && t.duedate.slice(0, 10) < todayStr,
+        ).length;
+        const thisWeekCount = tasks.filter((t) => {
+          const d = t.duedate?.slice(0, 10);
+          return d && d >= todayStr && d <= oneWeek;
+        }).length;
+
+        // Active project count comes from the total in meta
+        const activeProjectCount =
+          projectsRes.meta?.total ?? projectsRes.data?.length ?? "—";
+
+        document.getElementById("stat-projects").textContent =
+          activeProjectCount;
+        document.getElementById("stat-week").textContent = thisWeekCount;
+        document.getElementById("stat-overdue").textContent = overdueCount;
+
+        renderTable(tasks, projectMap, todayStr);
+      }
+
+      function renderTable(tasks, projectMap, todayStr) {
+        const container = document.getElementById("table-container");
+
+        if (tasks.length === 0) {
+          container.innerHTML =
+            '<div class="empty">No tasks due in the next 14 days.</div>';
+          return;
+        }
+
+        const rows = tasks
+          .map((task) => {
+            const dueDateStr = task.duedate?.slice(0, 10) ?? "";
+            const projectName =
+              task.projecttitle ?? projectMap[task.projectid] ?? "—";
+            const priorityID = task.priorityid ?? null;
+
+            let rowClass = "";
+            if (dueDateStr && dueDateStr < todayStr) rowClass = "overdue";
+            else if (dueDateStr && dueDateStr === todayStr)
+              rowClass = "due-today";
+
+            const priorityBadge = priorityID
+              ? `<span class="priority-badge priority-${priorityID}">${escHtml(PRIORITY_LABELS[priorityID] ?? String(priorityID))}</span>`
+              : '<span style="color:#bbb">—</span>';
+
+            return `
+          <tr class="${rowClass}">
+            <td><span class="task-name">${escHtml(task.name ?? "(untitled)")}</span></td>
+            <td><span class="project-name">${escHtml(projectName)}</span></td>
+            <td><span class="due-date">${formatDate(dueDateStr)}</span></td>
+            <td>${priorityBadge}</td>
+          </tr>`;
+          })
+          .join("");
+
+        container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Project</th>
+              <th>Due Date</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+      }
+
+      function escHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      loadDashboard().catch((err) => {
+        document.getElementById("table-container").innerHTML =
+          `<div class="error">Failed to load: ${escHtml(err.message)}</div>`;
+        console.error(err);
+      });
+    </script>
+  </body>
+</html>
