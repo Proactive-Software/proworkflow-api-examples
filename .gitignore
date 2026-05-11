@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Output files
+output/
+
+# Config files with credentials (keep *.example.json)
+*.json
+!*example*.json
+!package.json
+!package-lock.json
+
+# macOS
+.DS_Store

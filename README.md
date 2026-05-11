@@ -9,6 +9,7 @@ Code examples for the [ProWorkflow API v4](https://api.proworkflow.com/api/v4/sw
 | Example | Description |
 |---------|-------------|
 | [dashboard](js/dashboard/) | Active projects and upcoming tasks — open `index.html` in a browser, no build step |
+| [webhook-to-slack](js/webhook-to-slack/) | Receive PWF webhook events and forward notifications to Slack |
 
 ### Python
 
