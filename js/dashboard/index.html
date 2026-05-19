@@ -290,7 +290,7 @@
             "/projects?status=active&fields=id,title&pagesize=500&pagenumber=1",
           ),
           apiFetch(
-            `/projectitems?status=active&duedateto=${twoWeeks}` +
+            `/projects/items?status=active&duedateto=${twoWeeks}` +
               `&sortby=duedate&sortorder=asc` +
               `&fields=id,name,duedate,priority,projectid,projecttitle` +
               `&pagesize=100&pagenumber=1`,

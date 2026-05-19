@@ -99,7 +99,7 @@ ROOT_LIST_ENDPOINTS = [
 
     # --- Sub-resources at root level (avoid nested duplicates) ---
     {
-        "path": "/projectitems",
+        "path": "/projects/items",
         "filename": "projectitems",
         "params": {"fields": "all", "status": "all"},
     },
@@ -114,7 +114,7 @@ ROOT_LIST_ENDPOINTS = [
         "params": {"fields": "all"},
     },
     {
-        "path": "/invoiceitems",
+        "path": "/invoices/items",
         "filename": "invoiceitems",
         "params": {"fields": "all"},
     },
@@ -124,7 +124,7 @@ ROOT_LIST_ENDPOINTS = [
         "params": {"fields": "all"},
     },
     {
-        "path": "/quoteitems",
+        "path": "/quotes/items",
         "filename": "quoteitems",
         "params": {"fields": "all"},
     },

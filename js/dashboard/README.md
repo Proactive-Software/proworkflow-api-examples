@@ -29,7 +29,7 @@ No build step, no server, no dependencies.
 
 ```
 GET /projects?status=active&fields=id,name&pagesize=500
-GET /projectitems?status=active&duedateto=<+14 days>&sortby=duedate&sortorder=asc&fields=id,name,duedate,priorityid,projectid,projecttitle&pagesize=100
+GET /projects/items?status=active&duedateto=<+14 days>&sortby=duedate&sortorder=asc&fields=id,name,duedate,priorityid,projectid,projecttitle&pagesize=100
 ```
 
 Both calls run in parallel via `Promise.all`. The dashboard demonstrates:

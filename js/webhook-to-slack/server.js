@@ -111,7 +111,7 @@ app.post("/webhook/:event", async (req, res) => {
       message = buildProjectMessage(event, data.data ?? {});
     } else if (handler.type === "task") {
       const data = await pwfFetch(
-        `/projectitems/${id}?fields=id,name,projecttitle,duedate,priority`,
+        `/projects/items/${id}?fields=id,name,projecttitle,duedate,priority`,
       );
       message = buildTaskMessage(event, data.data ?? {});
     }
